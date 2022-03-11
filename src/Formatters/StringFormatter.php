@@ -9,12 +9,14 @@
  * @license MIT
  */
 
+
+ 
 namespace Web3\Formatters;
 
 use InvalidArgumentException;
 use Web3\Utils;
 use Web3\Formatters\IFormatter;
-
+  
 class StringFormatter implements IFormatter
 {
     /**
