@@ -198,7 +198,7 @@ class Ethabi
      * @param string $param
      * @return string
      */
-    public function decodeParameters($types, $param)
+    public function decodeParameters($types, $param): array
     {
         if (!is_string($param)) {
             throw new InvalidArgumentException('The type or param to decodeParameters must be string.');

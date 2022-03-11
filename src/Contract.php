@@ -897,7 +897,6 @@ class Contract
         if (!array_key_exists($eventName, $this->events)) {
             throw new InvalidArgumentException("'{$eventName}' does not exist in the ABI for this contract");
         }
-
         //indexed and non-indexed event parameters must be treated separately
         //indexed parameters are stored in the 'topics' array
         //non-indexed parameters are stored in the 'data' value
@@ -905,7 +904,6 @@ class Contract
         $eventParameterTypes = [];
         $eventIndexedParameterNames = [];
         $eventIndexedParameterTypes = [];
-
         foreach ($this->events[$eventName]['inputs'] as $input) {
             if ($input['indexed']) {
                 $eventIndexedParameterNames[] = $input['name'];
@@ -917,7 +915,6 @@ class Contract
         }
 
         $numEventIndexedParameterNames = count($eventIndexedParameterNames);
-
         //filter through log data to find any logs which match this event (topic) from
         //this contract, between these specified blocks (defaulting to the latest block only)
         $this->eth->getLogs([
@@ -926,14 +923,15 @@ class Contract
             'topics' => [$this->ethabi->encodeEventSignature($this->events[$eventName])],
             'address' => $this->toAddress
         ],
-        function ($error, $result) use (&$eventLogData, $eventParameterTypes, $eventParameterNames, $eventIndexedParameterTypes, $eventIndexedParameterNames) {
+        function ($error, $result) use (&$eventLogData, $eventParameterTypes, $eventParameterNames, $eventIndexedParameterTypes, $eventIndexedParameterNames,$numEventIndexedParameterNames){
             if ($error !== null) {
                 throw new RuntimeException($error->getMessage());
             }
 
             foreach ($result as $object) {
+                $params = $this->ethabi->decodeParameters($eventParameterTypes, $object->data);
                 //decode the data from the log into the expected formats, with its corresponding named key
-                $decodedData = array_combine($eventParameterNames, $this->ethabi->decodeParameters($eventParameterTypes, $object->data));
+                $decodedData = array_combine($eventParameterNames, $params);
 
                 //decode the indexed parameter data
                 for ($i = 0; $i < $numEventIndexedParameterNames; $i++) {
